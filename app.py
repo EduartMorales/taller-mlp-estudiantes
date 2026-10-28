@@ -53,9 +53,18 @@ def metrics():
     return jsonify(artefactos["metricas"])
 
 
-@app.post("/predict")
+@app.route("/predict", methods=["GET", "POST"])
 def predict():
-    datos = request.get_json(silent=True)
+    if request.method == "GET":
+        if not request.args:
+            ejemplo = (request.host_url + "predict?Tareas=90&Examenes=85&Asistencia=95"
+                       "&Estudio_Horas=20&Sueno_Horas=7.5&Extracurriculares=1")
+            return jsonify(
+                mensaje="Endpoint de predicción del MLP. Usa POST con JSON o GET con parámetros.",
+                variables=FEATURES, ejemplo_get=ejemplo)
+        datos = request.args.to_dict()
+    else:
+        datos = request.get_json(silent=True)
     if not isinstance(datos, dict):
         return jsonify(error="Envía un JSON con las variables: " + ", ".join(FEATURES)), 400
     try:
